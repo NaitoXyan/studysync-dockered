@@ -1,0 +1,35 @@
+version: '3'
+services:
+  mysql:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD:
+      MYSQL_DATABASE: studysync
+    ports:
+      - "3306:3306"
+    volumes:
+      - C:\xampp\htdocs\studysync\volumefolder:/var/lib/mysql
+
+  studysync-api:  # Update service name to match your Laravel API folder name
+    build:
+      context: ./studysync-api  # Update context to match your Laravel API directory
+    ports:
+      - "8000:80"
+    depends_on:
+      - mysql
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: studysync
+      DB_USERNAME: root
+      DB_PASSWORD:
+    volumes:
+      - ./studysync-api/studysync-api.conf:/etc/apache2/sites-available/studysync-api.conf
+
+  studysyncapp:  # Update service name to match your Flutter app folder name
+    build:
+      context: ./studysyncapp  # Update context to match your Flutter app directory
+    ports:
+      - "80:80"
+    depends_on:
+      - studysync-api
